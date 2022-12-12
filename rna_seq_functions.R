@@ -72,7 +72,11 @@ sva_cleaning_mod <- function(edat){
   return(svobj)
 }
 
-
+#' Map ensembl gene ids to hgnc gene symbols and chromosome 
+#' 
+#' @param genes A character vector with ensembl gene ids as 
+#' 
+#' @return Dataframe consisting of three character vectors of ensembl gene id, symbol and chromosome
 
 
 
