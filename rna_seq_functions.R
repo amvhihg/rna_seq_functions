@@ -94,6 +94,20 @@ gene_name_converter <- function(genes)
 }
 
 variance_stabilization <- function(edat, pdat, n_sv){
-  
-  design <- ~ case +  sex + age + age*sex 
-}
+  sv_char <- rep("sv",n.sv)
+  nsv_char <- as.character(seq(1,n.sv,1))
+  sv_char_comp <- paste0(sv_char,nsv_char)
+  plus_char <- c(rep("+", n.sv -1),"")
+  sv_char_plus <- paste0(sv_char_comp, plus_char)
+  design_char <- paste0("~ case +  sex + age + age*sex + case*sex +",paste(sv_char_plus, collapse = " "), "+ sex *(",paste(sv_char_plus, collapse = " "), ")") 
+  design_form <- as.formula(design_char)
+  de_seq_obj <- DESeqDataSetFromMatrix(countData = edat, colData = pdat, design = design_form)
+  de_seq_sf  <- estimateSizeFactors(de_seq_obj)
+  normalized_counts <- counts(de_seq_sf,normalized = TRUE)
+  vst_deseq_obj <- vst(de_seq_sf, blind = FALSE)
+  vsd_mat   <- assay(vst_deseq_obj)
+  vsd_ret <- as.data.frame(cbind(t(vsd_mat), pdat$case, pdat$sex, pdat$age))
+  colnames(vsd_ret) <- c(rownames(vsd_mat), "case","sex","age")
+    
+  return(vsd_ret)
+  }
