@@ -1,13 +1,17 @@
-sva_obj <- sva_cleaning_mod(sva_df)
+sva_obj <- sva_cleaning_age(sva_df)
 
 sva_obj$sv <- apply(sva_obj$sv,2,function(x){ scale(x, center = TRUE)})
 sva_ret <- sva_obj$sv
-colnames(sva_ret) <- c("sv1","sv2","sv3","sv4")
+sv_char <- rep("sv",sva_obj$n.sv)
+nsv_char <- as.character(seq(1,sva_obj$n.sv,1))
+sv_char_comp <- paste0(sv_char,nsv_char)
+
+colnames(sva_ret) <- sv_char_comp
 pheno_data_t <- as.data.frame(cbind(pheno_data, sva_ret))
 pheno_data_t$age <- scale(pheno_data_t$age)
 
 
-DE_seq_obj        <- DESeqDataSetFromMatrix(countData = rosmap_final_count, colData = pheno_data_t, design = ~ case + sex + case:sex + sv1 +sv2+sv3 + sv4+(sv1+sv2+sv3+sv4)  *sex+ age + age:sex )
+DE_seq_obj        <- DESeqDataSetFromMatrix(countData = rosmap_final_count, colData = pheno_data_t, design = ~ case + sex + case:sex + sv1 +sv2+sv3 +(sv1+sv2+sv3)  *sex+ age + age:sex )
 DE_seq_obj        <- estimateSizeFactors(DE_seq_obj)
 normalized_counts <- counts(DE_seq_obj, normalized = TRUE)
 vst_de_seq_obj    <- vst(DE_seq_obj, blind = FALSE)
@@ -39,15 +43,15 @@ pheno_data_t$case <- relevel(pheno_data_t$case, ref = "Normal")
 pheno_data_t$int <- ifelse(pheno_data_t$sex == "male" & pheno_data_t$case == "AD","B","A")
 pheno_data_t$int <- as.factor(pheno_data_t$int)
 
-DE_seq_obj_out <- DESeqDataSetFromMatrix(countData = rosmap_df, colData = pheno_data_t, design = ~ case + sex + int + sv1 + sv2 +sv3+sv4+ (sv1 + sv2+sv3+sv4) *sex+ age + age:sex )
+DE_seq_obj_out <- DESeqDataSetFromMatrix(countData = rosmap_df, colData = pheno_data_t, design = ~ case + sex + int + sv1 + sv2 +sv3+ (sv1 + sv2+sv3) *sex+ age + age:sex )
 
 DE_seq_obj_out <- estimateSizeFactors(DE_seq_obj_out)
 size_factors <- estimateSizeFactors(DE_seq_obj_out)
 
 fem_deqseq <- size_factors[,size_factors$sex =="female"]
 male_deseq <- size_factors[,size_factors$sex == "male"]
-fem_deqseq@design <- ~  age + case+ sv1 + sv2 +sv3 +sv4 
-male_deseq@design <- ~  age + case + sv1 + sv2  +sv3 + sv4
+fem_deqseq@design <- ~  age + case+ sv1 + sv2 +sv3  
+male_deseq@design <- ~  age + case + sv1 + sv2  +sv3 
 
 full_model <- DESeq(size_factors)
 
