@@ -1,7 +1,7 @@
 rm(list = ls())
 #no sv*sex
 #source("C:/Users/amadh/Downloads/rna_seq_functions(1).R")
-
+#gitcommit
 library(edgeR)
 library(org.Hs.eg.db)
 library(DESeq2)

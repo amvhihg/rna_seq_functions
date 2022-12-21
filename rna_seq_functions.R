@@ -93,3 +93,7 @@ gene_name_converter <- function(genes)
   
 }
 
+variance_stabilization <- function(edat, pdat, n_sv){
+  
+  design <- ~ case +  sex + age + age*sex 
+}
