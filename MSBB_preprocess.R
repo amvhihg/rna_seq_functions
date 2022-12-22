@@ -16,17 +16,18 @@ library(DGEobj.utils)
 
 setwd(paste0("C:/Users/amadh/Documents/RNA_SEQ/AMPAD"))
 
-rosmap_unnorm <- read.delim(file ="AMP-AD_MSBB_MSSM_BM_10.raw_counts.tsv" )
+rosmap_unnorm <- read.delim(file ="AMP-AD_MSBB_MSSM_BM_36.raw_counts.tsv" )
 # rnaseq_meta <- read.csv(file ="MSBB_assay_rnaSeq_metadata_corrected(1).csv")
 pheno_data <- read.csv("MSBB_individual_metadata(1).csv")
 rnaseq_cov <- read.csv("MSBB_RNAseq_covariates_November2018Update.csv")
 
 
 
-rnaseq_cov <- rnaseq_cov[rnaseq_cov$BrodmannArea == "BM10", ]
+rnaseq_cov <- rnaseq_cov[rnaseq_cov$BrodmannArea == "BM36", ]
 rnaseq_cov <- rnaseq_cov[rnaseq_cov$Action == "OKay",]
 IDS_df   <- rnaseq_cov[,c("sampleIdentifier", "individualIdentifier")]
 rownames(rosmap_unnorm) <- rosmap_unnorm$Ensembl.ID
+#IDS_df <- IDS_df[IDS_df$sampleIdentifier != "hB_RNA_10622",]
 row_names <- rosmap_unnorm$Ensembl.ID
 pheno_data <- pheno_data[pheno_data$individualID %in% IDS_df$individualIdentifier,]
 IDS_df$dups <- duplicated(IDS_df$individualIdentifier)
@@ -58,7 +59,7 @@ counts_cpm <- convertCounts(counts_double, unit = "CPM")
 rownames(counts_cpm) <- rownames(rosmap_unnorm)
 counts_match_cpm <- counts_cpm[,colnames(counts_cpm) %in% IDS_pheno$sampleIdentifier]
 
-keep <- rowSums(counts_match_cpm >= 10) > min(table(pheno_data$case, pheno_data$sex))
+keep <- rowSums(counts_match_cpm >= 1) > min(table(pheno_data$case, pheno_data$sex))
 rosmap_final_count <- rosmap_unnorm[keep,]
 rosmap_final_count <- rosmap_final_count[,colnames(rosmap_final_count) %in% IDS_pheno$sampleIdentifier]
 IDS_pheno <- IDS_pheno[IDS_pheno$sampleIdentifier %in% colnames(rosmap_final_count),]
