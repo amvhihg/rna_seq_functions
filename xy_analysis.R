@@ -3,7 +3,7 @@
 # columns binded to a sample X gene matrix
 
 source("~/RNA_SEQ/rna_seq_functions/MSBB_preprocess.R")
-source("~/RNA_SEQ/rna_seq_functions/rna_seq_functions.R")
+source("~/rna_seq_functions/rna_seq_functions.R")
 library(e1071)
 library(cluster)
 
@@ -12,8 +12,9 @@ xy_chr_table <- gene_chr_table[gene_chr_table$chromosome_name == "Y" | gene_chr_
 
 xist_kd5md <- xy_chr_table[xy_chr_table$hgnc_symbol
                            %in% c("XIST","RPS4Y1"),]
+colnames(sva_df) <-  sub("[.][0-9]*","", colnames(sva_df))
 xy_df <- sva_df[,colnames(sva_df) %in% c(xy_chr_table$ensembl_gene_id,"sex")]
-xist_df <- xy_df[,colnames(xy_df) %in% c(xist_kd5md$ensembl_gene_id,"sex")]
+xist_df <- sva_df[,colnames(sva_df) %in% c(xist_kd5md$ensembl_gene_id,"sex")]
 xy_df$sex <- as.factor(xy_df$sex)
 set.seed(1)
 

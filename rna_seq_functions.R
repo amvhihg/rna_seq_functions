@@ -42,7 +42,7 @@ sva_cleaning_age <- function(edat){
 
 
   mod_data   <- model.matrix( ~1 + case + sex+ case *sex + age + age*sex, data = edat)
-  mod0       <- model.matrix(~1  +sex + age , data = edat)
+  mod0       <- model.matrix(~1  +sex + age + age *sex , data = edat)
   n_cols     <- ncol(edat) - 3
   p_cols     <- ncol(edat) - 1
   expr_ae_ad <- apply(edat[,1:n_cols],2,as.double)
@@ -94,10 +94,10 @@ gene_name_converter <- function(genes)
 }
 
 variance_stabilization <- function(edat, pdat, n_sv){
-  sv_char <- rep("sv",n.sv)
-  nsv_char <- as.character(seq(1,n.sv,1))
+  sv_char <- rep("sv",n_sv)
+  nsv_char <- as.character(seq(1,n_sv,1))
   sv_char_comp <- paste0(sv_char,nsv_char)
-  plus_char <- c(rep("+", n.sv -1),"")
+  plus_char <- c(rep("+", n_sv -1),"")
   sv_char_plus <- paste0(sv_char_comp, plus_char)
   design_char <- paste0("~ case +  sex + age + age*sex + case*sex +",paste(sv_char_plus, collapse = " "), "+ sex *(",paste(sv_char_plus, collapse = " "), ")") 
   design_form <- as.formula(design_char)
