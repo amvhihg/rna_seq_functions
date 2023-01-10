@@ -18,7 +18,7 @@ pheno_data_t$age <- scale(pheno_data_t$age)
 #vsd_mat           <- assay(vst_de_seq_obj)
 #vsd_df            <- as.data.frame(cbind(t(vsd_mat), pheno_data_t$case,  pheno_data_t$sex,pheno_data_t$age))
 #colnames(vsd_df) <- c(rownames(vsd_mat), "case","sex","age")
-vsd_df <- variance_stabilization(edat = rosmap_final_count, pdat = pheno_data_t, n_sv =3)
+vsd_df <- variance_stabilization(edat = mayo_gene_cer, pdat = pheno_data_t, n_sv =5)
 pca_vsd_case <- pca_data_out(vsd_df, "case")
 pca_vsd_sex  <- pca_data_out(vsd_df, "sex")
 #pca_vsd_race <- pca_data_out(vsd_df, "race")
@@ -35,7 +35,7 @@ outliers_x <- rownames(outliers_df[outliers_df[,1] < x_point,])
 outliers_y <- rownames(outliers_df[outliers_df[,2]< y_point,])
 outliers <- c(outliers_x, outliers_y)
 pheno_data_t <- pheno_data_t[!(rownames(pheno_data_t) %in% outliers),]
-rosmap_df <- rosmap_final_count[,!(colnames(rosmap_final_count) %in% outliers)]
+rosmap_df <- mayo_gene_cer[,!(colnames(mayo_gene_cer) %in% outliers)]
 rownames(pheno_data_t) <- pheno_data_t$sampleIdentifier
 rosmap_df <- rosmap_df[,colnames(rosmap_df) %in% rownames(pheno_data_t)]
 
@@ -43,21 +43,21 @@ pheno_data_t$case <- as.factor(pheno_data_t$case)
 pheno_data_t$case <- relevel(pheno_data_t$case, ref = "Normal")
 pheno_data_t$int <- ifelse(pheno_data_t$sex == "male" & pheno_data_t$case == "AD","B","A")
 pheno_data_t$int <- as.factor(pheno_data_t$int)
-
-DE_seq_obj_out <- DESeqDataSetFromMatrix(countData = rosmap_df, colData = pheno_data_t, design = ~ case + sex + int + sv1 + sv2 +sv3+ (sv1 + sv2+sv3) *sex+ age + age:sex )
+rownames(rosmap_df) <-   sub("[.][0-9]*","", rownames(rosmap_df))
+DE_seq_obj_out <- DESeqDataSetFromMatrix(countData = rosmap_df, colData = pheno_data_t, design = ~ case + sex + int + sv1 + sv2 +sv3+ sv4 +sv5 + (sv1 + sv2+sv3 + sv4 + sv5) *sex+ age + age:sex )
 
 DE_seq_obj_out <- estimateSizeFactors(DE_seq_obj_out)
 size_factors <- estimateSizeFactors(DE_seq_obj_out)
 
 fem_deqseq <- size_factors[,size_factors$sex =="female"]
 male_deseq <- size_factors[,size_factors$sex == "male"]
-fem_deqseq@design <- ~  age + case+ sv1 + sv2 +sv3  
-male_deseq@design <- ~  age + case + sv1 + sv2  +sv3 
+fem_deqseq@design <- ~  age + case+ sv1 + sv2 +sv3  +sv4+sv5
+male_deseq@design <- ~  age + case + sv1 + sv2  +sv3 +sv4+sv5
 
 full_model <- DESeq(size_factors)
 
 
-results_int <- results(full_model,contrast = c("int","A","B"),independentFiltering = )
+results_int <- results(full_model,contrast = c("int","A","B"),independentFiltering = FALSE)
 int_table <- do.call("cbind",results_int@listData)
 int_table <- as.data.frame(int_table)
 rownames(int_table) <- results_int@rownames
@@ -89,8 +89,7 @@ fem_table_sym <- fem_table_sym[fem_table_sym$dup   == FALSE,]
 
 rownames(case_table_sym) <- case_table_sym$ensembl_gene_id
 rownames(fem_table_sym) <- fem_table_sym$ensembl_gene_id
-rownames(case_table) <-   sub("[.][0-9]*","", rownames(case_table))
-rownames(fem_table)  <-    sub("[.][0-9]*","", rownames(fem_table))
+
 
 case_table_fin <- merge(case_table, fem_table_sym, by = "row.names")
 fem_table_fin <- merge(fem_table, fem_table_sym, by  = "row.names")
@@ -104,7 +103,7 @@ male_table_fin <- merge(male_table, fem_table_sym, by = "row.names")
 
 int_table_fin <- merge(int_table, fem_table_sym, by = "row.names")
 
-results_sex <- results(full_model, contrast = c("sex","female","male"),independentFiltering = FALSE)
+results_sex <- results(full_model, contrast = c("sex","female","male"))
 sex_table <- do.call("cbind",results_sex@listData)
 sex_table <- as.data.frame(sex_table)
 rownames(sex_table) <- results_sex@rownames

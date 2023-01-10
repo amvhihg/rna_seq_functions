@@ -42,7 +42,7 @@ sva_cleaning_age <- function(edat){
 
 
   mod_data   <- model.matrix( ~1 + case + sex+ case *sex + age + age*sex, data = edat)
-  mod0       <- model.matrix(~1  +sex + age , data = edat)
+  mod0       <- model.matrix(~1  +sex + age + age *sex , data = edat)
   n_cols     <- ncol(edat) - 3
   p_cols     <- ncol(edat) - 1
   expr_ae_ad <- apply(edat[,1:n_cols],2,as.double)
