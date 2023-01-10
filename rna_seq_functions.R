@@ -94,10 +94,10 @@ gene_name_converter <- function(genes)
 }
 
 variance_stabilization <- function(edat, pdat, n_sv){
-  sv_char <- rep("sv",n.sv)
-  nsv_char <- as.character(seq(1,n.sv,1))
+  sv_char <- rep("sv",n_sv)
+  nsv_char <- as.character(seq(1,n_sv,1))
   sv_char_comp <- paste0(sv_char,nsv_char)
-  plus_char <- c(rep("+", n.sv -1),"")
+  plus_char <- c(rep("+", n_sv -1),"")
   sv_char_plus <- paste0(sv_char_comp, plus_char)
   design_char <- paste0("~ case +  sex + age + age*sex + case*sex +",paste(sv_char_plus, collapse = " "), "+ sex *(",paste(sv_char_plus, collapse = " "), ")") 
   design_form <- as.formula(design_char)
