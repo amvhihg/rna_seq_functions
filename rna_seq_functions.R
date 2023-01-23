@@ -129,3 +129,18 @@ de_seq_function <- function(edat, pdat, n_sv)
   return(list(deseq_model, de_seq_sf))
   
 }
+
+sex_strat_deseq <- function(strat_sf, n_sv){
+  sv_char <- rep("sv",n_sv)
+  nsv_char <- as.character(seq(1,n_sv,1))
+  sv_char_comp <- paste0(sv_char,nsv_char)
+  plus_char <- c(rep("+", n_sv -1),"")
+  sv_char_plus <- paste0(sv_char_comp, plus_char)
+  design_char <- paste0("~ case +  age  +",paste(sv_char_plus, collapse = " ")) 
+  design_form <- as.formula(design_char)
+  strat_sf@design <- design_form
+  strat_model <- DESeq(strat_sf)
+  
+  return(strat_model)
+  
+}

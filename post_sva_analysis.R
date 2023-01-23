@@ -1,6 +1,6 @@
 pheno_data_t$case <- as.factor(pheno_data_t$case)
 pheno_data_t$case <- relevel(pheno_data_t$case, ref = "Normal")
-deseq_obj_sva <- DESeqDataSetFromMatrix(rosmap_final_count, pheno_data_t, ~ case + sex + case*sex + age)
+deseq_obj_sva <- DESeqDataSetFromMatrix(mayo_gene_cer, pheno_data_t, ~ case + sex + case*sex + age)
 deseq_obj_sva <- estimateSizeFactors(deseq_obj_sva)
 norm_cts <- counts(deseq_obj_sva, normalized = TRUE)
 
@@ -26,7 +26,7 @@ pheno_data_t$age <- scale(pheno_data_t$age)
 #vsd_mat           <- assay(vst_de_seq_obj)
 #vsd_df            <- as.data.frame(cbind(t(vsd_mat), pheno_data_t$case,  pheno_data_t$sex,pheno_data_t$age))
 #colnames(vsd_df) <- c(rownames(vsd_mat), "case","sex","age")
-vsd_df <- variance_stabilization(edat = rosmap_final_count, pdat = pheno_data_t, n_sv =sva_obj$n.sv)
+vsd_df <- variance_stabilization(edat = mayo_gene_cer, pdat = pheno_data_t, n_sv =sva_obj$n.sv)
 pca_vsd_case <- pca_data_out(vsd_df, "case")
 pca_vsd_sex  <- pca_data_out(vsd_df, "sex")
 #pca_vsd_race <- pca_data_out(vsd_df, "race")
@@ -50,13 +50,13 @@ rosmap_df <- mayo_gene_cer[,!(colnames(mayo_gene_cer) %in% outliers)]
 rownames(pheno_data_t) <- pheno_data_t$specimenID
 rosmap_df <- rosmap_df[,colnames(rosmap_df) %in% rownames(pheno_data_t)]
 
-rosmap_df <- rosmap_final_count #for msbb datasets
+#rosmap_df <- rosmap_final_count #for msbb datasets
 pheno_data_t$case <- as.factor(pheno_data_t$case)
 pheno_data_t$case <- relevel(pheno_data_t$case, ref = "Normal")
 pheno_data_t$int <- ifelse(pheno_data_t$sex == "male" & pheno_data_t$case == "AD","B","A")
 pheno_data_t$int <- as.factor(pheno_data_t$int)
 rownames(rosmap_df) <-   sub("[.][0-9]*","", rownames(rosmap_df))
-full_model_list <- de_seq_function(rosmap_final_count, pheno_data_t, sva_obj$n.sv)
+full_model_list <- de_seq_function(rosmap_df, pheno_data_t, sva_obj$n.sv)
 full_model   <- full_model_list[[1]]
 size_factors <- full_model_list[[2]]
 
