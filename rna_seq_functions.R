@@ -42,7 +42,7 @@ sva_cleaning_age <- function(edat){
 
 
   mod_data   <- model.matrix( ~1 + case + sex+ case *sex + age + age*sex, data = edat)
-  mod0       <- model.matrix(~1  +sex + age + age *sex , data = edat)
+  mod0       <- model.matrix(~1  + age  , data = edat)
   n_cols     <- ncol(edat) - 3
   p_cols     <- ncol(edat) - 1
   expr_ae_ad <- apply(edat[,1:n_cols],2,as.double)
@@ -57,17 +57,17 @@ sva_cleaning_age <- function(edat){
 }
 sva_cleaning_mod <- function(edat){
   # edat is the expression matrix with sex and case as the last two columns 
-  mod_data   <- model.matrix( ~1 + case + sex+ case *sex, data = edat)
-  mod0       <- model.matrix(~1  +sex  , data = edat)
+  mod_data   <- model.matrix( ~1 + case + sex+ case *sex + age + age*sex, data = edat)
+  mod0       <- model.matrix(~1  +age  , data = edat)
   n_cols     <- ncol(edat) - 3
   p_cols     <- ncol(edat) - 1
   expr_ae_ad <- apply(edat[,1:n_cols],2,as.double)
   #expr_ae_ad <- as.matrix(eset_ae_ad_pb[,1:2063])
   #expr_ae_ad <- apply(expr_ae_ad,2,as.numeric)
   
-  n.survar   <- num.sv(t(expr_ae_ad),mod_data, method = "leek") 
+  #n.survar   <- num.sv(t(expr_ae_ad),mod_data, method = "leek") 
   
-  svobj  <- svaseq(t(expr_ae_ad), mod_data, mod0,numSVmethod = "leek")
+  svobj  <- svaseq(t(expr_ae_ad), mod_data, mod0)
   
   return(svobj)
 }
@@ -99,7 +99,7 @@ variance_stabilization <- function(edat, pdat, n_sv){
   sv_char_comp <- paste0(sv_char,nsv_char)
   plus_char <- c(rep("+", n_sv -1),"")
   sv_char_plus <- paste0(sv_char_comp, plus_char)
-  design_char <- paste0("~ case +  sex + age + age*sex + case*sex +",paste(sv_char_plus, collapse = " "), "+ sex *(",paste(sv_char_plus, collapse = " "), ")") 
+  design_char <- paste0("~ case +  sex + age + age*sex + int +",paste(sv_char_plus, collapse = " "), "+ sex *(",paste(sv_char_plus, collapse = " "), ")") 
   design_form <- as.formula(design_char)
   de_seq_obj <- DESeqDataSetFromMatrix(countData = edat, colData = pdat, design = design_form)
   de_seq_sf  <- estimateSizeFactors(de_seq_obj)
@@ -110,4 +110,37 @@ variance_stabilization <- function(edat, pdat, n_sv){
   colnames(vsd_ret) <- c(rownames(vsd_mat), "case","sex","age")
     
   return(vsd_ret)
-  }
+}
+
+de_seq_function <- function(edat, pdat, n_sv)
+{
+  sv_char <- rep("sv",n_sv)
+  nsv_char <- as.character(seq(1,n_sv,1))
+  sv_char_comp <- paste0(sv_char,nsv_char)
+  plus_char <- c(rep("+", n_sv -1),"")
+  sv_char_plus <- paste0(sv_char_comp, plus_char)
+  design_char <- paste0("~ case +  sex + age + age*sex + int +",paste(sv_char_plus, collapse = " "), "+ sex *(",paste(sv_char_plus, collapse = " "), ")") 
+  design_form <- as.formula(design_char)
+  de_seq_obj <- DESeqDataSetFromMatrix(countData = edat, colData = pdat, design = design_form)
+  de_seq_sf  <- estimateSizeFactors(de_seq_obj)
+  
+  deseq_model <- DESeq(de_seq_sf)
+  
+  return(list(deseq_model, de_seq_sf))
+  
+}
+
+sex_strat_deseq <- function(strat_sf, n_sv){
+  sv_char <- rep("sv",n_sv)
+  nsv_char <- as.character(seq(1,n_sv,1))
+  sv_char_comp <- paste0(sv_char,nsv_char)
+  plus_char <- c(rep("+", n_sv -1),"")
+  sv_char_plus <- paste0(sv_char_comp, plus_char)
+  design_char <- paste0("~ case +  age  +",paste(sv_char_plus, collapse = " ")) 
+  design_form <- as.formula(design_char)
+  strat_sf@design <- design_form
+  strat_model <- DESeq(strat_sf)
+  
+  return(strat_model)
+  
+}
