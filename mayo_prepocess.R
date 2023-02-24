@@ -10,8 +10,8 @@ library(ggrepel)
 library(readr)
 library(sva)
 library(DGEobj.utils)
-Mayo_gene_all_counts_matrix_clean <- read.delim("C:/Users/axv851/Documents/RNA_seq/mayo//Mayo_gene_all_counts_matrix_clean.txt", header=FALSE)
-RNAseq_Harmonization_Mayo_combined_metadata <- read_csv("C:/Users/axv851/Documents/RNA_seq/mayo/RNAseq_Harmonization_Mayo_combined_metadata.csv")
+Mayo_gene_all_counts_matrix_clean <- read.delim("C:/Users/amadh/Downloads/Mayo_gene_all_counts_matrix_clean.txt", header=FALSE)
+RNAseq_Harmonization_Mayo_combined_metadata <- read_csv("C:/Users/amadh/Downloads/RNAseq_Harmonization_Mayo_combined_metadata.csv")
 
 RNAseq_Harmonization_Mayo_combined_metadata <- RNAseq_Harmonization_Mayo_combined_metadata[RNAseq_Harmonization_Mayo_combined_metadata$diagnosis %in% c("Alzheimer Disease", "control"),]
 table(RNAseq_Harmonization_Mayo_combined_metadata$tissue)
