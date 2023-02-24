@@ -99,7 +99,7 @@ variance_stabilization <- function(edat, pdat, n_sv){
   sv_char_comp <- paste0(sv_char,nsv_char)
   plus_char <- c(rep("+", n_sv -1),"")
   sv_char_plus <- paste0(sv_char_comp, plus_char)
-  design_char <- paste0("~ case +  sex + age + age*sex + int +",paste(sv_char_plus, collapse = " "), "+ sex *(",paste(sv_char_plus, collapse = " "), ")") 
+  design_char <- paste0("~ case +  sex + age + age*sex + case*sex +",paste(sv_char_plus, collapse = " "), "+ sex *(",paste(sv_char_plus, collapse = " "), ")") 
   design_form <- as.formula(design_char)
   de_seq_obj <- DESeqDataSetFromMatrix(countData = edat, colData = pdat, design = design_form)
   de_seq_sf  <- estimateSizeFactors(de_seq_obj)

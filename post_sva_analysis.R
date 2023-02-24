@@ -1,5 +1,7 @@
 pheno_data_t$case <- as.factor(pheno_data_t$case)
 pheno_data_t$case <- relevel(pheno_data_t$case, ref = "Normal")
+pheno_data_t <- pheno_data_t[order(rownames(pheno_data_t)),]
+mayo_gene_cer <- mayo_gene_cer[,order(colnames(mayo_gene_cer))]
 deseq_obj_sva <- DESeqDataSetFromMatrix(mayo_gene_cer, pheno_data_t, ~ case + sex + case*sex + age)
 deseq_obj_sva <- estimateSizeFactors(deseq_obj_sva)
 norm_cts <- counts(deseq_obj_sva, normalized = TRUE)
@@ -15,8 +17,9 @@ nsv_char <- as.character(seq(1,sva_obj$n.sv,1))
 sv_char_comp <- paste0(sv_char,nsv_char)
 
 colnames(sva_ret) <- sv_char_comp
-pheno_data_t <- as.data.frame(cbind(pheno_data, sva_ret))
+pheno_data_t <- as.data.frame(cbind(pheno_data_t, sva_ret))
 pheno_data_t$age <- scale(pheno_data_t$age)
+pheno_data_t$age <- as.double(pheno_data_t$age)
 
 
 #DE_seq_obj        <- DESeqDataSetFromMatrix(countData = rosmap_final_count, colData = pheno_data_t, design = ~ case + sex + case:sex + sv1 +sv2+sv3 +(sv1+sv2+sv3)  *sex+ age + age:sex )

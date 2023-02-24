@@ -1,5 +1,5 @@
 setwd(paste0("C:/Users/axv851/Documents/RNA_SEQ/rosmap_file"))
-
+source("~/RNA_SEQ/rna_seq_functions/rna_seq_functions.R")
 library(edgeR)
 library(org.Hs.eg.db)
 library(DESeq2)
@@ -16,9 +16,9 @@ library(factoextra)
 library(DGEobj.utils)
 
 rosmap_counts <- read.delim("~/RNA_seq/rosmap_file/ROSMAP_all_counts_matrix (1).txt.gz", header=FALSE)
-rosmap_meta <- read_csv("RNAseq_Harmonization_ROSMAP_combined_metadata.csv")
-rosmap_clinical <- read_csv("ROSMAP_clinical (1).csv")
-rosmap_pheno <- read.delim("~/RNA_seq/rosmap_file/ROSMAP_Covariates_ages_censored.tsv", header=FALSE)
+rosmap_meta <- read_csv("~/RNA_seq/rosmap_file/RNAseq_Harmonization_ROSMAP_combined_metadata.csv"  )
+#rosmap_clinical <- read_csv("ROSMAP_clinical (1).csv")
+rosmap_pheno <- read.delim("~/RNA_seq/rosmap_file/ROSMAP_Covariates_ages_censored(1).tsv", header=FALSE)
 
 colnames(rosmap_pheno) <- rosmap_pheno[1,]
 rosmap_pheno  <- rosmap_pheno[2:nrow(rosmap_pheno),]
@@ -43,6 +43,5 @@ keep <- rowSums(rosmap_cpm >= 1 ) >= min(table(rosmap_pheno$case, rosmap_pheno$s
 rosmap_counts <- rosmap_counts[keep,]
 
 rownames(rosmap_pheno) <- rosmap_pheno$specimenID
-sva_df <- merge(t(rosmap_counts), rosmap_pheno[,c("case","sex","age")], by = "row.names")
-rownames(sva_df) <- sva_df$Row.names
-sva_df  <- sva_df[,2:ncol(sva_df)]
+mayo_gene_cer <- rosmap_counts
+pheno_data_t <- rosmap_pheno
